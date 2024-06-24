@@ -1,0 +1,25 @@
+{
+  "name": "hans/php-mvc",
+  "description": "belajar php-mvc",
+  "type": "project",
+  "authors": [
+    {
+      "name": "farhan wahyudi",
+      "email": "farhanwahyudi875@gmail.com"
+    }
+  ],
+  "require": {},
+  "require-dev": {
+    "phpunit/phpunit": "11.1.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Hans\\Belajar\\PHP\\MVC\\": "app"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Hans\\Belajar\\PHP\\MVC\\": "tests"
+    }
+  }
+}
