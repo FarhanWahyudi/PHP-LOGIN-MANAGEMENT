@@ -43,8 +43,6 @@
                 Database::rollbackTransaction();
                 throw $exception;
             }
-
-            
         }
 
         private function validateUserRegistrationRequest(UserRegisterRequest $request) {
