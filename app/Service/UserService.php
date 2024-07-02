@@ -3,6 +3,8 @@
 
     use Hans\Belajar\PHP\MVC\Model\UserRegisterRequest;
     use Hans\Belajar\PHP\MVC\Model\UserRegisterResponse;
+    use Hans\Belajar\PHP\MVC\Model\UserLoginRequest;
+    use Hans\Belajar\PHP\MVC\Model\UserLoginResponse;
     use Hans\Belajar\PHP\MVC\Repository\UserRepository;
     use Hans\Belajar\PHP\MVC\Config\Database;
     use Hans\Belajar\PHP\MVC\Domain\User;
@@ -48,6 +50,29 @@
         private function validateUserRegistrationRequest(UserRegisterRequest $request) {
             if ($request->id == null || $request->name == null || $request->password == null || trim($request->id) == '' || trim($request->name) == '' || trim($request->password) == '') {
                 throw new ValidationException('id, name, password can not blank');
+            }
+        }
+
+        public function login(UserLoginRequest $request): UserLoginResponse {
+            $this->validateUserLoginRequest($request);
+
+            $user = $this->userRepository->findById($request->id);
+            if ($user == null) {
+                throw new ValidationException('id or password is wrong');
+            }
+
+            if (password_verify($request->password, $user->password)) {
+                $response = new UserLoginResponse();
+                $response->user = $user;
+                return $response;
+            } else {
+                throw new ValidationException('id or password is wrong');
+            }
+        }
+
+        private function validateUserLoginRequest(UserLoginRequest $request) {
+            if ($request->id == null || $request->password == null || trim($request->id) == '' || trim($request->password) == '') {
+                throw new ValidationException('id, password can not blank');
             }
         }
     }

@@ -6,6 +6,7 @@
     use Hans\Belajar\PHP\MVC\Repository\UserRepository;
     use Hans\Belajar\PHP\MVC\Service\UserService;
     use Hans\Belajar\PHP\MVC\Model\UserRegisterRequest;
+    use Hans\Belajar\PHP\MVC\Model\UserLoginRequest;
     use Hans\Belajar\PHP\MVC\Exception\ValidationException;
 
     class UserController {
@@ -18,7 +19,7 @@
         }
 
         public function register() {
-            View::render('User/Register', [
+            View::render('User/register', [
                 'title' => 'Register new User',
             ]);
         }
@@ -33,8 +34,30 @@
                 $this->userService->register($request);
                 View::redirect('users/login');
             } catch (ValidationException $exception) {
-                View::render('User/Register', [
+                View::render('User/register', [
                     'title' => 'Register new User',
+                    'error' => $exception->getMessage()
+                ]);
+            }
+        }
+
+        public function login() {
+            View::render('User/login', [
+                'title' => 'Login User'
+            ]);
+        }
+
+        public function postLogin() {
+            $request = new UserLoginRequest();
+            $request->id = $_POST['id'];
+            $request->password = $_POST['password'];
+
+            try {
+                $this->userService->login($request);
+                View::redirect('/');
+            } catch (ValidationException $exception) {
+                View::render('User/login', [
+                    'title' => 'Login User',
                     'error' => $exception->getMessage()
                 ]);
             }

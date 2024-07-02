@@ -80,6 +80,73 @@
                 $this->expectOutputRegex('[Register new User]');
                 $this->expectOutputRegex('[email is already exists]');
             }
+
+            public function testLogin() {
+                $this->userController->login();
+
+                $this->expectOutputRegex('[Login User]');
+                $this->expectOutputRegex('[id]');
+                $this->expectOutputRegex('[password]');
+            }
+            
+            public function testLoginSuccess() {
+                $user = new User();
+                $user->id = 'hans';
+                $user->name = 'hans';
+                $user->password = password_hash('hans123', PASSWORD_BCRYPT);
+
+                $this->userRepository->save($user);
+
+                $_POST['id'] = 'hans';
+                $_POST['password'] = 'hans123';
+
+                $this->userController->postLogin();
+
+                $this->expectOutputRegex('[Location: /]');
+            }
+
+            public function testLoginValidationError() {
+                $_POST['id'] = '';
+                $_POST['password'] = '';
+
+                $this->userController->postLogin();
+
+                $this->expectOutputRegex('[Login User]');
+                $this->expectOutputRegex('[id]');
+                $this->expectOutputRegex('[password]');
+                $this->expectOutputRegex('[id, password can not blank]');
+            }
+
+            public function testLoginUserNotFound() {
+                $_POST['id'] = 'hajar';
+                $_POST['password'] = 'hajar';
+
+                $this->userController->postLogin();
+
+                $this->expectOutputRegex('[Login User]');
+                $this->expectOutputRegex('[id]');
+                $this->expectOutputRegex('[password]');
+                $this->expectOutputRegex('[id or password is wrong]');
+            }
+
+            public function testLoginWrongPassword() {
+                $user = new User();
+                $user->id = 'hans';
+                $user->name = 'hans';
+                $user->password = password_hash('hans123', PASSWORD_BCRYPT);
+
+                $this->userRepository->save($user);
+
+                $_POST['id'] = 'hans';
+                $_POST['password'] = 'hajar';
+
+                $this->userController->postLogin();
+
+                $this->expectOutputRegex('[Login User]');
+                $this->expectOutputRegex('[id]');
+                $this->expectOutputRegex('[password]');
+                $this->expectOutputRegex('[id or password is wrong]');
+            }
         }
     }
 ?>
