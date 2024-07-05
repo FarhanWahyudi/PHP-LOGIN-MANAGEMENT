@@ -16,5 +16,6 @@
     Router::add('POST', '/users/register', UserController::class, 'postRegister', []);
     Router::add('GET', '/users/login', UserController::class, 'login', []);
     Router::add('POST', '/users/login', UserController::class, 'postLogin', []);
+    Router::add('GET', '/users/logout', UserController::class, 'logOut', []);
 
     Router::run();

@@ -7,6 +7,7 @@
 
     namespace Hans\Belajar\PHP\MVC\Controller {
         use PHPUnit\Framework\TestCase;
+        use Hans\Belajar\PHP\MVC\Repository\SessionRepository;
         use Hans\Belajar\PHP\MVC\Repository\UserRepository;
         use Hans\Belajar\PHP\MVC\Config\Database;
         use Hans\Belajar\PHP\MVC\Domain\User;
@@ -14,11 +15,14 @@
         class UserControllerTest extends TestCase {
             private UserController $userController;
             private UserRepository $userRepository;
+            private SessionRepository $sessionRepository;
 
             protected function setUp(): void {
                 $this->userController = new UserController();
 
+                $this->sessionRepository = new SessionRepository(Database::getConnection());
                 $this->userRepository = new UserRepository(Database::getConnection());
+                $this->sessionRepository->deleteAll();
                 $this->userRepository->deleteAll();
                 
                 putenv('mode=test');
