@@ -26,7 +26,7 @@
                 $pattern = '#^' . $route['path'] . '$#';
                 if (preg_match($pattern, $path, $variables) && $method == $route['method']) {
                     foreach ($route['middleware'] as $middleware) {
-                        $instance = new $middleware();
+                        $instance = new $middleware;
                         $instance->before();
                     }
                     

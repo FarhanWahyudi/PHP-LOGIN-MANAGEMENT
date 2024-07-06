@@ -5,12 +5,20 @@
         }
     }
 
+    namespace Hans\Belajar\PHP\MVC\Service {
+        function setcookie(string $name, string $value) {
+            echo "$name: $value";
+        }
+    }
+
     namespace Hans\Belajar\PHP\MVC\Controller {
         use PHPUnit\Framework\TestCase;
         use Hans\Belajar\PHP\MVC\Repository\SessionRepository;
         use Hans\Belajar\PHP\MVC\Repository\UserRepository;
+        use Hans\Belajar\PHP\MVC\Service\SessionService;
         use Hans\Belajar\PHP\MVC\Config\Database;
         use Hans\Belajar\PHP\MVC\Domain\User;
+        use Hans\Belajar\PHP\MVC\Domain\Session;
 
         class UserControllerTest extends TestCase {
             private UserController $userController;
@@ -107,6 +115,7 @@
                 $this->userController->postLogin();
 
                 $this->expectOutputRegex('[Location: /]');
+                $this->expectOutputRegex('[X-HNS-SESSION: ]');
             }
 
             public function testLoginValidationError() {
@@ -150,6 +159,26 @@
                 $this->expectOutputRegex('[id]');
                 $this->expectOutputRegex('[password]');
                 $this->expectOutputRegex('[id or password is wrong]');
+            }
+
+            public function testLogout() {
+                $user = new User();
+                $user->id = 'hans';
+                $user->name = 'hans';
+                $user->password = 'hans123';
+                $this->userRepository->save($user);
+
+                $session = new Session();
+                $session->id = uniqid();
+                $session->userId = $user->id;
+                $this->sessionRepository->save($session);
+
+                $_COOKIE[SessionService::$COOKIE_NAME] = $session->id;
+
+                $this->userController->logout();
+
+                $this->expectOutputRegex('[Location: /]');
+                $this->expectOutputRegex('[X-HNS-SESSION: ]');
             }
         }
     }

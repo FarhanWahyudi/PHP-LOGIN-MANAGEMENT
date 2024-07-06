@@ -70,7 +70,7 @@
             }
         }
 
-        public function logOut() {
+        public function logout() {
             $this->sessionService->destroy();
             View::redirect('/');
         }
