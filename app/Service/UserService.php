@@ -105,7 +105,7 @@
 
         private function validateUserProfileUpdateRequest(UserProfileUpdateRequest $request) {
             if ($request->id == null || $request->name == null || trim($request->id) == '' || trim($request->name) == '') {
-                throw new ValidationException('id, name can not blank');
+                throw new ValidationException('name can not blank');
             }
         }
     }
