@@ -5,6 +5,8 @@
     use Hans\Belajar\PHP\MVC\Model\UserRegisterResponse;
     use Hans\Belajar\PHP\MVC\Model\UserLoginRequest;
     use Hans\Belajar\PHP\MVC\Model\UserLoginResponse;
+    use Hans\Belajar\PHP\MVC\Model\UserProfileUpdateResponse;
+    use Hans\Belajar\PHP\MVC\Model\UserProfileUpdateRequest;
     use Hans\Belajar\PHP\MVC\Repository\UserRepository;
     use Hans\Belajar\PHP\MVC\Config\Database;
     use Hans\Belajar\PHP\MVC\Domain\User;
@@ -73,6 +75,37 @@
         private function validateUserLoginRequest(UserLoginRequest $request) {
             if ($request->id == null || $request->password == null || trim($request->id) == '' || trim($request->password) == '') {
                 throw new ValidationException('id, password can not blank');
+            }
+        }
+
+        public function updateProfile(UserProfileUpdateRequest $request): UserProfileUpdateResponse {
+            $this->validateUserProfileUpdateRequest($request);
+
+            try {
+                Database::beginTransaction();
+
+                $user = $this->userRepository->findById($request->id);
+                if ($user == null) {
+                    throw new ValidationException('User is not found');
+                }
+
+                $user->name = $request->name;
+                $this->userRepository->update($user);
+
+                Database::commitTransaction();
+
+                $response = new UserProfileUpdateResponse();
+                $response->user = $user;
+                return $response;
+            } catch (\Exception $exception) {
+                Database::rollbackTransaction();
+                throw $exception;
+            }
+        }
+
+        private function validateUserProfileUpdateRequest(UserProfileUpdateRequest $request) {
+            if ($request->id == null || $request->name == null || trim($request->id) == '' || trim($request->name) == '') {
+                throw new ValidationException('id, name can not blank');
             }
         }
     }
