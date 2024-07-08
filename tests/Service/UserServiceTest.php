@@ -8,6 +8,7 @@
     use Hans\Belajar\PHP\MVC\Model\UserRegisterRequest;
     use Hans\Belajar\PHP\MVC\Model\UserLoginRequest;
     use Hans\Belajar\PHP\MVC\Model\UserProfileUpdateRequest;
+    use Hans\Belajar\PHP\MVC\Model\UserPasswordUpdateRequest;
     use Hans\Belajar\PHP\MVC\Exception\ValidationException;
     use Hans\Belajar\PHP\MVC\Domain\User;
     use Hans\Belajar\PHP\MVC\Domain\Session;
@@ -23,8 +24,8 @@
             $this->sessionRepository = new SessionRepository($connection);
             $this->userService = new UserService($this->userRepository);
 
-            $this->userRepository->deleteAll();
             $this->sessionRepository->deleteAll();
+            $this->userRepository->deleteAll();
         }
 
         public function testRegisterSuccess() {
@@ -153,6 +154,70 @@
             $request->id = 'kaka';
             $request->name = 'akmal';
             $this->userService->updateProfile($request);
+        }
+
+        public function testUpdatePasswordSuccess() {
+            $user = new User();
+            $user->id = 'hans';
+            $user->name = 'hans';
+            $user->password = password_hash('hans123', PASSWORD_BCRYPT);
+            $this->userRepository->save($user);
+
+            $request = new UserPasswordUpdateRequest();
+            $request->id = $user->id;
+            $request->oldPassword = 'hans123';
+            $request->newPassword = '123';
+
+            $this->userService->updatePassword($request);
+
+            $result = $this->userRepository->findById($user->id);
+
+            $this->assertTrue(password_verify($request->newPassword, $result->password));
+        }
+
+        public function testUpdatePasswordValidationError() {
+            $this->expectException(ValidationException::class);
+
+            $user = new User();
+            $user->id = 'hans';
+            $user->name = 'hans';
+            $user->password = password_hash('hans123', PASSWORD_BCRYPT);
+            $this->userRepository->save($user);
+
+            $request = new UserPasswordUpdateRequest();
+            $request->id = $user->id;
+            $request->oldPassword = '';
+            $request->newPassword = '';
+
+            $this->userService->updatePassword($request);
+        }
+
+        public function testUpdatePasswordWrongOldPassword() {
+            $this->expectException(ValidationException::class);
+
+            $user = new User();
+            $user->id = 'hans';
+            $user->name = 'hans';
+            $user->password = password_hash('hans123', PASSWORD_BCRYPT);
+            $this->userRepository->save($user);
+
+            $request = new UserPasswordUpdateRequest();
+            $request->id = $user->id;
+            $request->oldPassword = '123';
+            $request->newPassword = 'hanso';
+
+            $this->userService->updatePassword($request);
+        }
+
+        public function testUpdatePasswordNotFound() {
+            $this->expectException(ValidationException::class);
+
+            $request = new UserPasswordUpdateRequest();
+            $request->id ='hanso';
+            $request->oldPassword = '123';
+            $request->newPassword = 'hanso';
+
+            $this->userService->updatePassword($request);
         }
     }
 ?>
