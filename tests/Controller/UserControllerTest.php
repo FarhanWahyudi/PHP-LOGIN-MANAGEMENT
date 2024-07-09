@@ -249,6 +249,104 @@
                 $this->expectOutputRegex('[hans]');
                 $this->expectOutputRegex('[name can not blank]');
             }
+
+            public function testUpdatePassword() {
+                $user = new User();
+                $user->id = 'hans';
+                $user->name = 'hans';
+                $user->password = password_hash('rahasia', PASSWORD_BCRYPT);
+                $this->userRepository->save($user);
+
+                $session = new Session();
+                $session->id = uniqid();
+                $session->userId = $user->id;
+                $this->sessionRepository->save($session);
+
+                $_COOKIE[SessionService::$COOKIE_NAME] = $session->id;
+                
+                $this->userController->updatePassword();
+
+                $this->expectOutputRegex('[Password]');
+                $this->expectOutputRegex('[Id]');
+                $this->expectOutputRegex('[Old Password]');
+                $this->expectOutputRegex('[New Password]');
+                $this->expectOutputRegex('[hans]');
+            }
+
+            public function testPostUpdatePasswordSuccess() {
+                $user = new User();
+                $user->id = 'hans';
+                $user->name = 'hans';
+                $user->password = password_hash('rahasia', PASSWORD_BCRYPT);
+                $this->userRepository->save($user);
+
+                $session = new Session();
+                $session->id = uniqid();
+                $session->userId = $user->id;
+                $this->sessionRepository->save($session);
+
+                $_COOKIE[SessionService::$COOKIE_NAME] = $session->id;
+                
+                $_POST['oldPassword'] = 'rahasia';
+                $_POST['newPassword'] = '123';
+
+                $this->userController->postUpdatePassword();
+
+                $this->expectOutputRegex('[Location: /]');
+
+                $result = $this->userRepository->findById($user->id);
+                $this->assertTrue(password_verify('123', $result->password));
+            }
+
+            public function testPostUpdatePasswordValidationError() {
+                $user = new User();
+                $user->id = 'hans';
+                $user->name = 'hans';
+                $user->password = password_hash('rahasia', PASSWORD_BCRYPT);
+                $this->userRepository->save($user);
+
+                $session = new Session();
+                $session->id = uniqid();
+                $session->userId = $user->id;
+                $this->sessionRepository->save($session);
+
+                $_COOKIE[SessionService::$COOKIE_NAME] = $session->id;
+                
+                $_POST['oldPassword'] = '';
+                $_POST['newPassword'] = '';
+
+                $this->userController->postUpdatePassword();
+
+                $this->expectOutputRegex('[Password]');
+                $this->expectOutputRegex('[Id]');
+                $this->expectOutputRegex('[hans]');
+                $this->expectOutputRegex('[id, old password, and new password can not blank]');
+            }
+            
+            public function testPostUpdatePasswordWrongOldPassword() {
+                $user = new User();
+                $user->id = 'hans';
+                $user->name = 'hans';
+                $user->password = password_hash('rahasia', PASSWORD_BCRYPT);
+                $this->userRepository->save($user);
+
+                $session = new Session();
+                $session->id = uniqid();
+                $session->userId = $user->id;
+                $this->sessionRepository->save($session);
+
+                $_COOKIE[SessionService::$COOKIE_NAME] = $session->id;
+                
+                $_POST['oldPassword'] = 'admin#123';
+                $_POST['newPassword'] = '123';
+
+                $this->userController->postUpdatePassword();
+
+                $this->expectOutputRegex('[Password]');
+                $this->expectOutputRegex('[Id]');
+                $this->expectOutputRegex('[hans]');
+                $this->expectOutputRegex('[password is wrong]');
+            }
         }
     }
 ?>
