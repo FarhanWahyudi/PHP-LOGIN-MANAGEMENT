@@ -1,17 +1,8 @@
 <?php
-    namespace Hans\Belajar\PHP\MVC\App {
-        function header(string $value) {
-            echo $value;
-        }
-    }
-
-    namespace Hans\Belajar\PHP\MVC\Service {
-        function setcookie(string $name, string $value) {
-            echo "$name: $value";
-        }
-    }
-
     namespace Hans\Belajar\PHP\MVC\Controller {
+
+        require_once __DIR__ . '/../Helper/helper.php';
+
         use PHPUnit\Framework\TestCase;
         use Hans\Belajar\PHP\MVC\Repository\SessionRepository;
         use Hans\Belajar\PHP\MVC\Repository\UserRepository;
